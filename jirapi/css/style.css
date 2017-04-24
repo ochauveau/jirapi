@@ -1,0 +1,29 @@
+body{
+	margin: 0 0 0 0;
+	font-family: 'Muli', sans-serif;
+	overflow: hidden;
+	background-color: black;
+}
+.KO{
+	float:left; margin: -1 -1 -1 -1; width:50%; background-color:#e74c3c; height:50%; border: 1px solid #585858; border-collapse: collapse;
+}
+.OK{
+	float:left; margin: -1 -1 -1 -1; width:50%; background-color:#2ecc71; height:50%; border: 1px solid #585858; border-collapse: collapse;
+}
+.NC{
+	float:left; margin: -1 -1 -1 -1; width:50%; background-color:#808080; height:50%; border: 1px solid #585858; border-collapse: collapse;
+}
+.font{
+	color:white;
+	font-size:125px;
+	text-align: center;
+	padding: 20px;
+}
+.content2{
+	margin-top:10px;
+	font-size:35px;
+	padding-left: 20px;
+}
+.mini {
+	font-size:18px;
+}
