@@ -2,13 +2,14 @@
 
 class Jira {
 
-    public static function getSprint($projectId, $startId = 0){
+    public static function getSprint($projectId, $startId = 616){
         /* Récupère les id des sprints d'un board-équipe */
         global $url_prefixe;
         //$params = "/sprint?state=active&state=future";
         $params = "/sprint?state=active";
         $tablo = array();
         $sprints = Divers::curl($url_prefixe."agile/latest/board/".$projectId.$params, 4);
+       
         foreach($sprints['values'] as $sprint){
             $originBoardId = $sprint['originBoardId'];
             $id = $sprint['id'];
@@ -25,10 +26,37 @@ class Jira {
     	            $tablo[] = $tab;
     	            
     	        }
-    	    }
+    	   }
         }
         return $tablo;
     }
+
+
+    public static function getSprintHistoryList($projectId, $startId = 616){
+        /* Récupère les id des sprints d'un board-équipe */
+        global $url_prefixe;
+        //$params = "/sprint?state=active&state=future";
+        $params = "/sprint?state=closed,active";
+        $tablo = array();
+        $sprints = Divers::curl($url_prefixe."agile/latest/board/".$projectId.$params, 4);
+       
+        foreach($sprints['values'] as $sprint){
+            $originBoardId  = $sprint['originBoardId'];
+            $id             = $sprint['id'];
+
+
+            //if(Jira::jiraDateIsPast($sprint['endDate'])){
+                if(($originBoardId == $projectId)&&($id >= $startId)){
+                    
+                     $tablo[] = $sprint;
+
+                }
+           //}
+        }
+        return $tablo;
+        
+    }
+
 
 
     public static function getSprintIdAll($startId = 0){
@@ -39,6 +67,18 @@ class Jira {
         }
         return $tab;
     }
+
+    public static function getSprintX($startId = 0){
+        global $project_list;
+        foreach($project_list['rapidView'] as $projectId){
+            $tab_sprintId = Jira::getSprintHistoryList($projectId, $startId);
+            $tab[] = $tab_sprintId;
+        }
+        return $tab;
+    }
+
+
+
 
     public static function getIssues($sprintId){
         global $url_prefixe;
@@ -100,25 +140,46 @@ class Jira {
     }
 
     public static function count_velocity_and_engagement($tab){
-        $count_engagement = 0;
-        $count_velocity = 0;
-        $count_bv_total = 0;
-        $count_bv_done = 0;
+        $count_engagement       = 0;
+        $count_velocity         = 0;
+        $count_bv_total         = 0;
+        $count_bv_done          = 0;
+        $list_item_effotfull    = array();
+        $list_item_effotless    = array();
         foreach ($tab as $item) {
             $count_engagement += $item['estim'];
             $count_bv_total += $item['bv'];
+            
+            if (isset($item['estim'])){
+                $list_item_effotfull[] = $item['type'];
+            }else{
+                $list_item_effotless[] = $item['type'];
+            }
+
             if(in_array($item['etat'], array('Fermé(e)','Fini'))){
                 $count_velocity += $item['estim'];
                 $count_bv_done += $item['bv'];
             }
         }
         return array(
+            'list_item_effotfull'=> array_count_values($list_item_effotfull),
+            'list_item_effotless'=> array_count_values($list_item_effotless),
             'velocity'=> $count_velocity, 
             'engagement' => $count_engagement,
             'bv_total'=> $count_bv_total,
             'bv_done'=> $count_bv_done
+
         );
     }
+
+    public static function format_sprint_content($tab){
+        $label = array();
+        foreach($tab as $key => $val){
+            $label[] = $val." ".$key.Divers::pluriel($val);
+        }
+        return  strtolower(implode(', ', $label));
+    }
+
 
     public static function isSprintOK($startDate, $endDate, $storyPointsTotal, $storyPointsDone){
         $now        = date('Y-m-d');
@@ -154,12 +215,7 @@ class Jira {
     	$date 		= new DateTime($date);
     	$now 		= new DateTime();
     	$interval 	= $date->diff($now);
-    	$ecart 		= $interval->format('%R%a');
-    	if($ecart<1){
-    		return true;
-    	}else{
-    		return false;
-    	}
+    	return $interval->format('%R%a') < 1;
     }
 }
 
