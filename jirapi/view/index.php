@@ -1,5 +1,6 @@
 <html>
 <head>
+<meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css?family=Muli" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="css/style.css?<?=time()?>">
 </head>

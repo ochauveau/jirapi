@@ -74,7 +74,9 @@ foreach($tr as $date => $velo){
 
 ?>
 <html>
-<head></head>
+<head>
+	<meta charset="UTF-8">
+</head>
 <body>
 <style>
 	body 		{font-family: arial;  }
